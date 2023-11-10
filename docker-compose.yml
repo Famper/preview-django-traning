@@ -9,10 +9,16 @@ services:
       POSTGRES_PASSWORD: "6L6qr)=tQLwF!ZMjMt"
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
-      - ../2. Init Database:/docker-entrypoint-initdb.d
+      - /Init Database:/docker-entrypoint-initdb.d
       - python-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - python-br
 
 volumes:
   python-data:
+
+networks:
+  python-br:
+    driver: bridge
