@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:1.20.2
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - django
+    networks:
+      postget:
+        ipv4_address: 172.16.238.4
+
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: "pythondb"
+      POSTGRES_USER: "django"
+      POSTGRES_PASSWORD: "6L6qr)=tQLwF!ZMjMt"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ../Init Database:/docker-entrypoint-initdb.d
+      - ../python-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      postget:
+        ipv4_address: 172.16.238.2
+
+  django:
+    build: .
+    links:
+      - postgres
+    command:
+      - /bin/bash
+      - -c
+      - python telegrambot/manage.py makemigrations &&
+        python telegrambot/manage.py migrate &&
+        python telegrambot/manage.py runserver 0.0.0.0:8000
+    expose:
+      - 8000
+    volumes:
+      - .:/code
+    depends_on:
+      - postgres
+    env_file:
+      - ../.env
+    networks:
+      postget:
+        ipv4_address: 172.16.238.3
+
+volumes:
+  python-data:
+
+networks:
+  postget:
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.1
