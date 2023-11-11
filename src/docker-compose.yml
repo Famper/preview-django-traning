@@ -53,6 +53,24 @@ services:
       postget:
         ipv4_address: 172.16.238.3
 
+  bot:
+    build: .
+    links:
+      - postgres
+    command:
+      - /bin/bash
+      - -c
+      - python telegrambot/bot/main.py
+    volumes:
+      - .:/code
+    depends_on:
+      - postgres
+    env_file:
+      - ../.env
+    networks:
+      postget:
+        ipv4_address: 172.16.238.5
+
 volumes:
   python-data:
 
